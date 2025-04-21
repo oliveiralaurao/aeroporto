@@ -1,0 +1,15 @@
+RewriteEngine On
+
+
+RewriteRule ^$ public/index.php [L]
+
+RewriteRule ^mapaVoos$ public/mapa_assentos.php [L]
+
+RewriteRule ^sac$ public/fale_conosco.php [L]
+
+RewriteRule ^login$ public/login.php [L]
+
+RewriteRule ^logout$ routes/sair.php [L]
+
+
+
