@@ -48,14 +48,27 @@ class Portao {
         if (empty($ids)) {
             return false;
         }
+
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
         $queryDelete = "DELETE FROM `portoes` WHERE `id_portao` IN ($placeholders)";
-        if ($stmt = $this->db->prepare($queryDelete)) {
-            $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
-            return $stmt->execute();
+        $stmt = $this->db->prepare($queryDelete);
+
+        if (!$stmt) {
+            return false;
         }
-        return false;
+
+        $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
+
+        try {
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            if (strpos($e->getMessage(), 'a foreign key constraint fails') !== false) {
+                throw new Exception("constraint_violation");
+            }
+            throw $e;
+        }
     }
+
 
     public function getById($id) {
         $sql = "SELECT 

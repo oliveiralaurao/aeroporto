@@ -38,9 +38,9 @@ class Mensagem {
         return $stmt->execute();
     }
 
-    public function create($conteudo_mensagem, $email_mensagem, $data_envio, $passageiros_id_passageiros) {
+    public function create($assunto, $nome, $sobrenome) {
         $stmt = $this->db->prepare("INSERT INTO mensagem_contato (conteudo_mensagem, email_mensagem, data_envio, passageiros_id_passageiros) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("sssi", $conteudo_mensagem, $email_mensagem, $data_envio, $passageiros_id_passageiros);
+        $stmt->bind_param("sssi", $assunto, $nome, $sobrenome);
         return $stmt->execute();
     }
 

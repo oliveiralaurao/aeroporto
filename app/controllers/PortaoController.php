@@ -16,7 +16,7 @@ class PortaoController {
         $portoes = $this->model->getAll();
         $terminais = $this->modelTerminal->listarTodos();
         $mensagem = $_GET['msg'] ?? '';
-        include '../app/views/portao/index.php';
+        include '../app/views/ctrldev/portao/index.php';
     }
 
     public function create() {
@@ -32,7 +32,7 @@ class PortaoController {
             exit;
         }
         $terminais = $this->modelTerminal->listarTodos();
-        include '../views/portoes/index.php'; // Pode criar um form separado se preferir
+        include '../views/ctrldev/portoes/index.php'; // Pode criar um form separado se preferir
     }
 
     public function update() {
@@ -55,21 +55,31 @@ class PortaoController {
         }
         $portao = $this->model->getById($_GET['id']); // Passar ID pela URL
         $terminais = $this->modelTerminal->listarTodos();
-        include '../views/portoes/index.php'; // Adapte conforme sua necessidade
+        include '../views/ctrldev/portoes/index.php'; // Adapte conforme sua necessidade
     }
 
     public function deleteMultiple() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $ids = $_POST['ids'] ?? [];
 
-            if ($this->model->deleteMultiple($ids)) {
-                header('Location: ?msg=Portão(s) excluído(s) com sucesso!');
-            } else {
-                header('Location: ?msg=Erro ao excluir portões!');
+            try {
+                if ($this->model->deleteMultiple($ids)) {
+                    header('Location: ?msg=Portão(s) excluído(s) com sucesso!');
+                } else {
+                    header('Location: ?msg=Erro ao excluir portões!');
+                }
+            } catch (Exception $e) {
+                if ($e->getMessage() === 'constraint_violation') {
+                    header('Location: ?msgP=Este(s) portão(ões) não pode(m) ser excluído(s) porque estão associados a voos. Por favor, exclua ou desassocie esses itens antes de tentar novamente.');
+                } else {
+                    header('Location: ?msg=Erro inesperado ao excluir portões!');
+                }
             }
+
             exit;
         }
     }
+
 }
 
 ?>

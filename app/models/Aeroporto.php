@@ -48,6 +48,40 @@ class Aeroporto {
         $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
         return $stmt->execute();
     }
+    public function checkDependents($ids) {
+        if (empty($ids)) {
+            return false;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $query = "
+        SELECT destino 
+        FROM segmentovoo 
+        INNER JOIN aeroportos ON segmentovoo.destino = aeroportos.id_aeroporto 
+        WHERE destino IN ($placeholders)
+
+        UNION
+
+        SELECT terminais.id_aeroporto 
+        FROM terminais 
+        INNER JOIN aeroportos ON terminais.id_aeroporto = aeroportos.id_aeroporto 
+        WHERE terminais.id_aeroporto IN ($placeholders)
+    ";
+
+        $stmt = $this->db->prepare($query);
+
+
+        $params = array_merge($ids, $ids);
+        $types = str_repeat('i', count($params));
+
+
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result->num_rows > 0;
+    }
+
 }
 
 ?>

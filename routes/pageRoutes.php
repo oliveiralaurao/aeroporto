@@ -1,8 +1,8 @@
 <?php
 
-require_once('../startup/connectBD.php');
-require_once('../app/controllers/VooController.php');
-require_once('../app/controllers/AssentoController.php');
+require_once('../../../startup/connectBD.php');
+require_once('../../../app/controllers/VooController.php');
+require_once('../../../app/controllers/AssentoController.php');
 
 session_start();
 

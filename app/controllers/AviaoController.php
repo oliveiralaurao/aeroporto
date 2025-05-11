@@ -16,7 +16,7 @@ class AviaoController {
         $mensagem = $_GET['msg'] ?? '';
         $avioes = $this->aviaoModel->getAll();
         $companhias = $this->companhiaModel->getAll();
-        include '../app/views/aviao/index.php';
+        include '../app/views/ctrldev/aviao/index.php';
     }
 
     public function create() {
@@ -35,14 +35,10 @@ class AviaoController {
             exit;
         }
         $companhias = $this->companhiaModel->getAll();
-        include '../views/avioes/aviao_form_add.php';
+        include '../views/ctrldev/avioes/aviao_form_add.php';
     }
 
-    public function edit($id) {
-        $aviao = $this->aviaoModel->getById($id);
-        $companhias = $this->companhiaModel->getAll();
-        include '../views/avioes/aviao_form_update.php';
-    }
+
 
     public function update($data) {
         if ($this->aviaoModel->update(
@@ -62,16 +58,27 @@ class AviaoController {
     public function delete() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ids = $_POST['ids'] ?? [];
-            if ($this->aviaoModel->deleteMultiple($ids)) {
-                header("Location: ?msg=Avião(s) excluído(s) com sucesso!");
-            } else {
-                header("Location: ?msg=Erro ao excluir aviões!");
+
+            try {
+                if ($this->aviaoModel->deleteMultiple($ids)) {
+                    header("Location: ?msg=Avião(s) excluído(s) com sucesso!");
+                } else {
+                    header("Location: ?msg=Erro ao excluir aviões!");
+                }
+            } catch (Exception $e) {
+                if ($e->getMessage() === "constraint_violation") {
+                    header("Location: ?msgP=Este avião não pode ser excluído porque está associado a voos. Por favor, exclua ou desassocie esse item antes de tentar novamente.");
+                } else {
+                    header("Location: ?msg=Erro inesperado ao excluir aviões!");
+                }
             }
+
             exit;
         } else {
             header("Location: ?msg=Método de requisição inválido para exclusão!");
         }
     }
+
 }
 
 ?>

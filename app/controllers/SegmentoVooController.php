@@ -18,19 +18,18 @@ class SegmentoVooController {
     public function index() {
         $segmentos = $this->model->getAll();
         $aeroportos = $this->modelAeroporto->getAll();
-        $voos = $this->modelVoo->getAll();
+        $voos = $this->modelVoo->getAllByEscala();
         $mensagem = $_GET['msg'] ?? '';
-        include '../app/views/segmentoVoo/index.php';
+        include '../app/views/ctrldev/segmentoVoo/index.php';
     }
 
     public function create($data) {
         $numero_voo = $data['voo'];
-        $origem = $data['origem'];
         $destino = $data['destino'];
         $hora_partida = $data['hora_partida'];
         $hora_chegada = $data['hora_chegada'];
 
-        if ($this->model->create($numero_voo, $origem, $destino, $hora_partida, $hora_chegada)) {
+        if ($this->model->create($numero_voo, $destino, $hora_partida, $hora_chegada)) {
             header("Location: ?msg=Segmento cadastrado com sucesso!");
         } else {
             header("Location: ?msg=Erro ao cadastrar segmento!");
@@ -40,12 +39,11 @@ class SegmentoVooController {
     public function update($data) {
         $id_segmento = $data['id_segmento'];
         $id_voo = $data['voo_edit'];
-        $origem = $data['origem_edit'];
         $destino = $data['destino_edit'];
         $hora_partida = $data['hora_partida_edit'];
         $hora_chegada = $data['hora_chegada_edit'];
 
-        if ($this->model->update($id_segmento, $id_voo, $origem, $destino, $hora_partida, $hora_chegada)) {
+        if ($this->model->update($id_segmento, $id_voo, $destino, $hora_partida, $hora_chegada)) {
             header("Location: ?msg=Segmento atualizado com sucesso!");
         } else {
             header("Location: ?msg=Erro ao atualizar segmento!");

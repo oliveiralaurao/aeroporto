@@ -31,11 +31,25 @@ class Terminal {
     }
 
     public function deletar($ids) {
+        if (empty($ids)) {
+            return false;
+        }
+
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $query = "DELETE FROM terminais WHERE id_terminal IN ($placeholders)";
-        $stmt = $this->db->prepare($query);
         $types = str_repeat('i', count($ids));
+        $query = "DELETE FROM terminais WHERE id_terminal IN ($placeholders)";
+
+        $stmt = $this->db->prepare($query);
         $stmt->bind_param($types, ...$ids);
-        return $stmt->execute();
+
+        try {
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            if (strpos($e->getMessage(), 'a foreign key constraint fails') !== false) {
+                throw new Exception("constraint_violation");
+            }
+            throw $e;
+        }
     }
+
 }

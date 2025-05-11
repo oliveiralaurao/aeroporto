@@ -12,7 +12,7 @@ class MensagemController {
     public function index() {
         $mensagens = $this->model->getAll();
         $mensagem = $_GET['msg'] ?? '';
-        include '../app/views/mensagem/index.php';
+        include '../app/views/ctrldev/mensagem/index.php';
     }
 
     public function detalhes($id) {
@@ -32,11 +32,11 @@ class MensagemController {
         }
     }
 
-    public function criarMensagem($conteudo_mensagem, $email_mensagem, $data_envio, $passageiros_id_passageiros) {
-        if ($this->model->create($conteudo_mensagem, $email_mensagem, $data_envio, $passageiros_id_passageiros)) {
-            header("Location: ?msg=Mensagem enviada com sucesso!");
+    public function criarMensagem($assunto, $nome, $sobrenome) {
+        if ($this->model->create($assunto, $nome, $sobrenome)) {
+            header("Location: /aeroporto/sac?msg=Mensagem enviada com sucesso!");
         } else {
-            header("Location: ?msg=Erro ao enviar mensagem");
+            header("Location: /aeroporto/sac?msg=Erro ao enviar mensagem");
         }
     }
 
@@ -46,10 +46,10 @@ class MensagemController {
         $headers = "From: laura.pimenta2110@hotmail.com";
 
         if (mail($email_destino, $subject, $message, $headers)) {
-            $this->model->updateStatus($id, 'Respondida'); 
-            echo json_encode(['success' => true]);
+            $this->model->updateStatus($id, 'Respondida');
+            header("Location: /aeroporto/sac?msg=Mensagem enviada");
         } else {
-            echo json_encode(['success' => false, 'error' => 'Falha ao enviar email']);
+            header("Location: /aeroporto/sac?msg=Erro ao enviar mensagem");
         }
     }
 

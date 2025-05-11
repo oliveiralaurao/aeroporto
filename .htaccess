@@ -1,15 +1,19 @@
 RewriteEngine On
 
 
-RewriteRule ^$ public/index.php [L]
+RewriteRule ^$ app/views/public/index.php [L]
 
-RewriteRule ^mapaVoos$ public/mapa_assentos.php [L]
+RewriteRule ^mapaVoos$ app/views/public/mapa_assentos.php [L]
 
-RewriteRule ^sac$ public/fale_conosco.php [L]
+RewriteRule ^sac$ app/views/public/fale_conosco.php [L]
 
-RewriteRule ^login$ public/login.php [L]
+RewriteRule ^login$ app/views/public/login.php [L]
+
+RewriteRule ^perfil$ app/views/public/perfil.php [L]
 
 RewriteRule ^logout$ routes/sair.php [L]
+
+RewriteRule ^adm$ app/views/ctrldev/index.php [L]
 
 
 

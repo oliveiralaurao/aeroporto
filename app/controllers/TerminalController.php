@@ -12,7 +12,7 @@ class TerminalController {
     public function index() {
         $terminais = $this->model->listarTodos();
         $aeroportos = $this->model->listarAeroportos();
-        include '../app/views/terminal/index.php';
+        include '../app/views/ctrldev/terminal/index.php';
     }
 
     public function store($data) {
@@ -32,10 +32,20 @@ class TerminalController {
     }
 
     public function delete($ids) {
-        if ($this->model->deletar($ids)) {
-            header("Location: ?msg=Terminais excluídos com sucesso!");
-        } else {
-            header("Location: ?msg=Erro ao excluir terminais!");
+        try {
+            if ($this->model->deletar($ids)) {
+                header("Location: ?msg=Terminais excluídos com sucesso!");
+            } else {
+                header("Location: ?msg=Erro ao excluir terminais!");
+            }
+        } catch (Exception $e) {
+            if ($e->getMessage() === "constraint_violation") {
+                header("Location: ?msgP=Não é possível excluir o(s) terminal(is) porque estão associados a aeroportos. Desassocie-os antes de tentar novamente.");
+            } else {
+                header("Location: ?msg=Erro inesperado ao excluir terminais!");
+            }
         }
+        exit;
     }
+
 }

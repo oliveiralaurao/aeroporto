@@ -12,7 +12,7 @@ class AeroportoController {
     public function index() {
         $dados_aeroportos = $this->model->getAll();
         $mensagem = $_GET['msg'] ?? '';
-        include '../app/views/aeroporto/index.php';
+        include '../app/views/ctrldev/aeroporto/index.php';
     }
 
     public function store($data) {
@@ -33,11 +33,35 @@ class AeroportoController {
     }
 
     public function delete($ids) {
-        if ($this->model->deleteMultiple($ids)) {
-            header("Location: ?msg=Aeroportos excluídos com sucesso!");
+
+        if (isset($_GET['force_delete']) && $_GET['force_delete'] == 1) {
+
+            if ($this->model->deleteMultiple($ids)) {
+                header("Location: ?msg=Aeroportos excluídos com sucesso!");
+            } else {
+                header("Location: ?msg=Erro ao excluir aeroportos!");
+            }
         } else {
-            header("Location: ?msg=Erro ao excluir aeroportos!");
+
+            $dependentes = $this->model->checkDependents($ids);
+
+            if ($dependentes) {
+                $_SESSION['dependent_ids'] = $ids;
+                header("Location: ?msgP=Este aeroporto não pode ser excluído porque está associado a voos, segmentos e terminais. Por favor, exclua ou desassocie esses itens antes de tentar novamente.");
+                exit();
+            } else {
+                // Se não houver dependentes, deletar diretamente
+                if ($this->model->deleteMultiple($ids)) {
+                    header("Location: ?msg=Aeroportos excluídos com sucesso!");
+                } else {
+                    header("Location: ?msg=Erro ao excluir aeroportos!");
+                }
+            }
         }
+        exit();  // Garantir que o script pare aqui
     }
+
+
+
 }
 ?>

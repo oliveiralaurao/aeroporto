@@ -8,10 +8,9 @@ class SegmentoVooModel {
     }
 
     public function getAll() {
-        $query = "SELECT sv.id_segmento, v.numero_voo, oa.nome_aeroporto AS origem, da.nome_aeroporto AS destino, sv.hora_partida, sv.hora_chegada, sv.id_voo, v.numero_voo,oa.id_aeroporto AS idorigem, da.id_aeroporto AS iddestino
+        $query = "SELECT sv.id_segmento, v.numero_voo, da.nome_aeroporto AS destino, sv.hora_partida, sv.hora_chegada, sv.id_voo, v.numero_voo, da.id_aeroporto AS iddestino
                   FROM `segmentoVoo` sv
                   JOIN `voos` v ON sv.id_voo = v.id_voo
-                  JOIN `aeroportos` oa ON sv.origem = oa.id_aeroporto
                   JOIN `aeroportos` da ON sv.destino = da.id_aeroporto;";
         $result = $this->db->query($query);
         $segmentos = [];
@@ -24,7 +23,7 @@ class SegmentoVooModel {
     }
 
     public function getById($id) {
-        $query = "SELECT * FROM `segmentoVoo` WHERE id_segmento = ?";
+        $query = "SELECT id_segmento, id_voo, destino, hora_partida, hora_chegada FROM `segmentoVoo` WHERE id_segmento = ?";
         if ($stmt = $this->db->prepare($query)) {
             $stmt->bind_param("i", $id);
             $stmt->execute();
@@ -34,19 +33,19 @@ class SegmentoVooModel {
         return null;
     }
 
-    public function create($id_voo, $origem, $destino, $hora_partida, $hora_chegada) {
-        $query = "INSERT INTO `segmentoVoo` (id_voo, origem, destino, hora_partida, hora_chegada) VALUES (?, ?, ?, ?, ?)";
+    public function create($id_voo, $destino, $hora_partida, $hora_chegada) {
+        $query = "INSERT INTO `segmentoVoo` (id_voo, destino, hora_partida, hora_chegada) VALUES (?, ?, ?, ?)";
         if ($stmt = $this->db->prepare($query)) {
-            $stmt->bind_param("issss", $id_voo, $origem, $destino, $hora_partida, $hora_chegada);
+            $stmt->bind_param("isss", $id_voo, $destino, $hora_partida, $hora_chegada);
             return $stmt->execute();
         }
         return false;
     }
 
-    public function update($id_segmento, $id_voo, $origem, $destino, $hora_partida, $hora_chegada) {
-        $query = "UPDATE `segmentoVoo` SET id_voo = ?, origem = ?, destino = ?, hora_partida = ?, hora_chegada = ? WHERE id_segmento = ?";
+    public function update($id_segmento, $id_voo, $destino, $hora_partida, $hora_chegada) {
+        $query = "UPDATE `segmentoVoo` SET id_voo = ?, destino = ?, hora_partida = ?, hora_chegada = ? WHERE id_segmento = ?";
         if ($stmt = $this->db->prepare($query)) {
-            $stmt->bind_param("issssi", $id_voo, $origem, $destino, $hora_partida, $hora_chegada, $id_segmento);
+            $stmt->bind_param("isssi", $id_voo, $destino, $hora_partida, $hora_chegada, $id_segmento);
             return $stmt->execute();
         }
         return false;

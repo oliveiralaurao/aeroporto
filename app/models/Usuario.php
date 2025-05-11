@@ -23,10 +23,17 @@ class Usuario {
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
         $stmt = $this->conn->prepare("INSERT INTO passageiros (nome_passageiro, email_passageiro, senha_passageiro, telefone_passageiro, pais_passageiro, documento_passageiro, datanasc_passageiro, tipo_passageiro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+        if (!$stmt) {
+
+            return false;
+        }
+
         $stmt->bind_param("ssssssss", $nome, $email, $senhaHash, $telefone, $pais, $documento, $data_nasc, $tipo);
 
         return $stmt->execute();
     }
+
 
 
     public function update($id, $nome, $email, $senha, $telefone, $pais, $documento, $data_nasc, $tipo) {
@@ -36,19 +43,43 @@ class Usuario {
     }
 
     public function deleteMultiple($ids) {
-        if (empty($ids)) return false;
+        if (empty($ids)) {
+            return false;
+        }
 
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
         $types = str_repeat('i', count($ids));
         $stmt = $this->conn->prepare("DELETE FROM passageiros WHERE id_passageiros IN ($placeholders)");
 
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param($types, ...$ids);
-        return $stmt->execute();
+
+        try {
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            if (strpos($e->getMessage(), 'a foreign key constraint fails') !== false) {
+                throw new Exception("constraint_violation");
+            }
+            throw $e;
+        }
     }
+
 
     public function getByEmail($email) {
         $stmt = $this->conn->prepare("SELECT * FROM passageiros WHERE email_passageiro = ?");
         $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    public function buscaCPF($cpf)
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM passageiros WHERE documento_passageiro = ?");
+        $stmt->bind_param("s", $cpf);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_assoc();

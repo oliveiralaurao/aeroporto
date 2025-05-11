@@ -25,6 +25,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $vooController->buscarPorDestino($_GET['pesquisar_destino']);
         }elseif ($_SERVER['REQUEST_URI'] === '/aeroporto') {
             $vooController->listarVoosPublico();
+        }elseif (isset($_GET['id_voo'])) {
+            $vooController->getById($_GET['id_voo']);
+        }
+        elseif (isset($_GET['painel_voos'])) {
+            $vooController->painelVoos();
         } else {
             $vooController->index();
         }

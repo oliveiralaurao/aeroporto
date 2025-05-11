@@ -53,28 +53,33 @@ class Passagem {
     public function update($id, $valor_passagem, $assentos_id_assento) {
         $sql = "UPDATE passagens SET valor_passagem = ?, assentos_id_assento = ? WHERE id_passagem = ?";
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("iii", $valor_passagem, $assentos_id_assento, $id);
+        $stmt->bind_param("isi", $valor_passagem, $assentos_id_assento, $id);
         return $stmt->execute();
     }
+
 
     public function delete($id) {
         $sql = "DELETE FROM passagens WHERE id_passagem = ?";
         $stmt = $this->db->prepare($sql);
+
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param("i", $id);
-        return $stmt->execute();
+
+        try {
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            if (strpos($e->getMessage(), 'a foreign key constraint fails') !== false) {
+                throw new Exception("constraint_violation");
+            }
+            throw $e;
+        }
     }
 
-    public function getAssentosDisponiveis() {
-        $sql = "SELECT id_assento, numero_assento FROM assentos WHERE id_assento NOT IN (SELECT assentos_id_assento FROM passagens WHERE assentos_id_assento IS NOT NULL)";
-        $result = $this->db->query($sql);
-        $assentos = [];
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $assentos[] = $row;
-            }
-        }
-        return $assentos;
-    }
+
+
 }
 
 ?>

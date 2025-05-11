@@ -14,7 +14,7 @@ class CompanhiaController {
     public function index() {
         $companhias = $this->model->getAll();
         $mensagem = $_GET['msg'] ?? '';
-        include('../app/views/companhia/index.php');
+        include('../app/views/ctrldev/companhia/index.php');
     }
 
     public function create($data) {
@@ -26,9 +26,9 @@ class CompanhiaController {
         $stmt->bind_param("ss", $nome, $codigo);
 
         if ($stmt->execute()) {
-            header("Location: ../routes/companhiaRoutes.php?msg=Companhia cadastrada com sucesso!");
+            header("Location: ?msg=Companhia cadastrada com sucesso!");
         } else {
-            header("Location: ../routes/companhiaRoutes.php?msg=Erro ao cadastrar companhia: " . $stmt->error);
+            header("Location: ?msg=Erro ao cadastrar companhia: " . $stmt->error);
         }
 
         $stmt->close();
@@ -45,9 +45,9 @@ class CompanhiaController {
         $stmt->bind_param("ssi", $nome, $codigo, $id);
 
         if ($stmt->execute()) {
-            header("Location: ../routes/companhiaRoutes.php?msg=Companhia atualizada com sucesso!");
+            header("Location: ?msg=Companhia atualizada com sucesso!");
         } else {
-            header("Location: ../routes/companhiaRoutes.php?msg=Erro ao atualizar companhia: " . $stmt->error);
+            header("Location: ?msg=Erro ao atualizar companhia: " . $stmt->error);
         }
 
         $stmt->close();
@@ -56,26 +56,26 @@ class CompanhiaController {
 
     public function delete($ids) {
         if (empty($ids)) {
-            header("Location: ../routes/companhiaRoutes.php?msg=Nenhuma companhia selecionada para exclusão!");
+            header("Location: ?msg=Nenhuma companhia selecionada para exclusão!");
             exit();
         }
 
-        $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $query = "DELETE FROM `companhias` WHERE `id_companhia` IN ($placeholders)";
-
-        if ($stmt = $this->db->prepare($query)) {
-            $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
-
-            if ($stmt->execute()) {
-                header("Location: ../routes/companhiaRoutes.php?msg=Companhia(s) excluída(s) com sucesso!");
+        try {
+            if ($this->model->deleteMultiple($ids)) {
+                header("Location: ?msg=Companhia(s) excluída(s) com sucesso!");
             } else {
-                header("Location: ../routes/companhiaRoutes.php?msg=Erro ao excluir registro(s): " . $stmt->error);
+                header("Location: ?msg=Erro ao excluir companhia(s)!");
             }
-
-            $stmt->close();
+        } catch (Exception $e) {
+            if ($e->getMessage() === 'constraint_violation') {
+                header("Location: ?msgP=Esta companhia não pode ser excluída porque está associada a aeronaves. Por favor, exclua ou desassocie esses itens antes de tentar novamente.");
+            } else {
+                header("Location: ?msg=Erro inesperado ao excluir companhia(s)!");
+            }
         }
         exit();
     }
+
 }
 
 ?>

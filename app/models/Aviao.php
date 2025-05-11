@@ -49,12 +49,28 @@ class Aviao {
         if (empty($ids)) {
             return false;
         }
+
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
         $query = "DELETE FROM aeronaves WHERE id_aeronave IN ($placeholders)";
         $stmt = $this->db->prepare($query);
+
+        if (!$stmt) {
+            return false;
+        }
+
         $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
-        return $stmt->execute();
+
+        try {
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            if (strpos($e->getMessage(), 'a foreign key constraint fails') !== false) {
+
+                throw new Exception("constraint_violation");
+            }
+            throw $e;
+        }
     }
+
 }
 
 ?>

@@ -23,7 +23,7 @@ class VooController {
         $avioes = $this->connAviao->getAll();
         $portoes = $this->connPortao->getAll();
         $aeroportos = $this->connAeroporto->getAll();
-        include '../app/views/voo/index.php';
+        include '../app/views/ctrldev/voo/index.php';
     }
 
 
@@ -68,12 +68,22 @@ class VooController {
     }
 
     public function delete($ids) {
-        if ($this->model->deleteMultiple($ids)) {
-            header("Location: ?msg=Voos excluídos com sucesso!");
-        } else {
-            header("Location: ?msg=Erro ao excluir voos!");
+        try {
+            if ($this->model->deleteMultiple($ids)) {
+                header("Location: ?msg=Voos excluídos com sucesso!");
+            } else {
+                header("Location: ?msg=Erro ao excluir voos!");
+            }
+        } catch (Exception $e) {
+            if ($e->getMessage() === "constraint_violation") {
+                header("Location: ?msgP=Um ou mais voos não podem ser excluídos porque estão associados a reservas e segmento de voo. Desassocie-os antes de tentar novamente.");
+            } else {
+                header("Location: ?msg=Erro inesperado ao excluir voos!");
+            }
         }
+        exit;
     }
+
     public function buscarPorDestino($destino) {
         $voos = $this->model->buscarPorDestino($destino);
         $_SESSION['voos_busca'] = $voos;
@@ -92,9 +102,26 @@ class VooController {
 
         ];
     }
+    public function getById($id)
+    {
+        $voo = $this->model->getById($id);
+
+        if ($voo) {
+            header('Content-Type: application/json');
+            echo json_encode($voo);
+        } else {
+            http_response_code(404);
+            echo json_encode(['erro' => 'Voo não encontrado']);
+        }
+    }
 
 
 
+    public function painelVoos() {
+        $dados = $this->model->getPainelVoos();
+        header('Content-Type: application/json');
+        echo json_encode($dados);
+    }
 
 
 

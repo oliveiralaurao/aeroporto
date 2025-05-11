@@ -13,7 +13,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             } elseif ($_POST['action'] === 'update') {
                 $segmentoVooController->update($_POST);
             } elseif ($_POST['action'] === 'deleteMultiple') {
-                $segmentoVooController->deleteMultiple($_POST['ids'] ?? []);
+                $segmentoVooController->deleteMultiple($_POST['segmentos_ids'] ?? []);
             }
         }
         break;

@@ -18,8 +18,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
         break;
 
+    case 'GET':
+        if (isset($_GET['action']) && $_GET['action'] === 'deleteMultiple') {
+            // Os IDs virão da URL neste caso
+            $aeroportoController->delete($_GET['ids'] ?? []);
+        } else {
+            $aeroportoController->index();
+        }
+        break;
+
     default:
         $aeroportoController->index();
         break;
 }
-?>  
+?>
